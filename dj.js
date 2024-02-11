@@ -59,18 +59,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Gestionnaire d'événement pour effacer tout
     clearAllBtn.addEventListener('click', () => {
         if (window.confirm("Êtes-vous sûr de vouloir effacer toute la liste ?")) {
+            // Assurez-vous que cette partie itère sur `fullList` pour obtenir chaque `item.id`
             fullList.forEach(item => {
+                // Correctement construit la référence du document pour la suppression
                 const docRef = doc(db, "submissions", item.id);
                 deleteDoc(docRef).then(() => {
                     console.log("Document successfully deleted!");
-                    // Après suppression, mettez à jour l'affichage.
-                    updateDisplay();
-                }).catch(error => {
+                }).catch((error) => {
                     console.error("Error removing document: ", error);
                 });
             });
-            // Réinitialisez fullList après la suppression
+            // Videz la liste complète après la suppression
             fullList = [];
+            // Mettez à jour l'affichage pour refléter la liste vide
             updateDisplay();
         }
     });
