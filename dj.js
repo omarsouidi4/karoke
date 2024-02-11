@@ -12,57 +12,62 @@ const firebaseConfig = {
   };
 
 
+// ... imports et initialisation de Firebase ...
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let fullList = []; // Liste complète des chansons
 let isReduced = true; // Indicateur de l'état de la liste, réduite ou non
-const MAX_DISPLAY = 5;
+const MAX_DISPLAY = 5; // Nombre maximal de chansons à afficher en mode réduit
 
 document.addEventListener('DOMContentLoaded', () => {
     const songList = document.getElementById('song-list');
-    const reduceListBtn = document.getElementById('reduce-list'); // Bouton pour réduire la liste
-    const clearAllBtn = document.getElementById('clear-all'); // Bouton pour effacer tout
+    const reduceListBtn = document.getElementById('reduce-list');
+    const clearAllBtn = document.getElementById('clear-all');
 
-    // Référence à la collection Firestore
     const submissionsRef = collection(db, "submissions");
     const q = query(submissionsRef, orderBy("timestamp", "desc"));
 
     // Écoute des mises à jour en temps réel
     onSnapshot(q, (querySnapshot) => {
-        songList.innerHTML = '';
-        querySnapshot.forEach((doc) => {
+        fullList = querySnapshot.docs.map(doc => {
             const data = doc.data();
-            const li = document.createElement('li');
-            li.textContent = `${data.artist} - ${data.song} (Table ${data.table})`;
-            songList.appendChild(li);
+            return {
+                id: doc.id,
+                text: `${data.artist} - ${data.song} (Table ${data.table})`
+            };
         });
+        updateDisplay();
     });
 
-    // Gestionnaire d'événement pour réduire la liste
-    reduceListBtn.addEventListener('click', () => {
-        reduceListBtn.addEventListener('click', () => {
-            isReduced = !isReduced; // Basculez l'état de isReduced
-            updateDisplay(); // Mettez à jour l'affichage
-    
-            // Changez le texte du bouton en fonction de l'état
-            reduceListBtn.textContent = isReduced ? "Étendre la liste" : "Réduire la liste";
+    // Fonction pour mettre à jour l'affichage de la liste des chansons
+    function updateDisplay() {
+        songList.innerHTML = '';
+        const toDisplay = isReduced ? fullList.slice(0, MAX_DISPLAY) : fullList;
+        toDisplay.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item.text;
+            songList.appendChild(li);
         });
+    }
+
+    // Gestionnaire d'événement pour réduire/étendre la liste
+    reduceListBtn.addEventListener('click', () => {
+        isReduced = !isReduced;
+        updateDisplay();
+        reduceListBtn.textContent = isReduced ? "Étendre la liste" : "Réduire la liste";
     });
 
     // Gestionnaire d'événement pour effacer tout
     clearAllBtn.addEventListener('click', () => {
-        // Avertissement : Ceci supprimera toutes les données de votre collection Firestore !
-        // Implémentez une confirmation avant de supprimer
         if (window.confirm("Êtes-vous sûr de vouloir effacer toute la liste ?")) {
-            // Supprimez chaque document de la collection
-            querySnapshot.forEach((doc) => {
-                submissionsRef.doc(doc.id).delete().then(() => {
-                    console.log("Document successfully deleted!");
-                }).catch((error) => {
+            fullList.forEach(item => {
+                submissionsRef.doc(item.id).delete().catch(error => {
                     console.error("Error removing document: ", error);
                 });
             });
         }
     });
 });
+
