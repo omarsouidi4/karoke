@@ -21,5 +21,26 @@
 
     <!-- C<img src="image-karaoke.jpg" alt="Karaoké"> -->
     <script src="dj.js" type="module"></script>
+    <!-- Firebase App (le cœur de Firebase) -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+<!-- Ajoutez ici les SDK Firebase supplémentaires que vous utilisez -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics.js"></script>
+<!-- Configuration Firebase -->
+<script>
+  const firebaseConfig = {
+    apiKey: "Votre_apiKey",
+    authDomain: "Votre_authDomain",
+    projectId: "Votre_projectId",
+    storageBucket: "Votre_storageBucket",
+    messagingSenderId: "Votre_messagingSenderId",
+    appId: "Votre_appId",
+    measurementId: "Votre_measurementId"
+  };
+  // Initialisation Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  // Initialisation de services supplémentaires, par exemple Firebase Analytics
+  const analytics = firebase.getAnalytics(app);
+</script>
+
 </body>
 </html>
