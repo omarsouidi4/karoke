@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
 const firebaseConfig = {
     apiKey: "AIzaSyC2uaxWDXMh2NqBuOfDtal-tGEuqEp_DYY",
     authDomain: "karaoke-1f4e6.firebaseapp.com",
@@ -8,10 +9,7 @@ const firebaseConfig = {
     messagingSenderId: "732700787552",
     appId: "1:732700787552:web:d2f21e6334de13cb959405",
     measurementId: "G-564LSTD2Q4"
-  };
-
-
-// ... imports et initialisation de Firebase ...
+};
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -62,11 +60,18 @@ document.addEventListener('DOMContentLoaded', () => {
     clearAllBtn.addEventListener('click', () => {
         if (window.confirm("Êtes-vous sûr de vouloir effacer toute la liste ?")) {
             fullList.forEach(item => {
-                submissionsRef.doc(item.id).delete().catch(error => {
+                const docRef = doc(db, "submissions", item.id);
+                deleteDoc(docRef).then(() => {
+                    console.log("Document successfully deleted!");
+                    // Après suppression, mettez à jour l'affichage.
+                    updateDisplay();
+                }).catch(error => {
                     console.error("Error removing document: ", error);
                 });
             });
+            // Réinitialisez fullList après la suppression
+            fullList = [];
+            updateDisplay();
         }
     });
 });
-
